@@ -8,7 +8,7 @@ This repo has two main executables: `start` and `advent`. See David´s repo for 
 
 ### Usage
 
-> `./advent [-h] [--year year] [--file filename.txt] [--slow] [--debug] [--profile] day`
+> `./advent [-h] [--year year] [--file filename.txt]
 
 Run a day of Advent of Code
 
@@ -18,12 +18,8 @@ positional arguments:
 
 optional arguments:
 
-- `-h, --help` (optional): show this help message and exit
 - `--year YEAR` (optional): Puzzle year. Defaults to current year if December has begun, otherwise previous year
 - `--file` (optional): specify the input file to be used 
-- `--slow` (optional): specify that long-running solutions (or those requiring manual input) should be run
-- `--debug` (optional): prints normally-hidden debugging statements
-- `--profile` (optional): run solution through a performance profiler
 
 ### Examples
 
@@ -44,4 +40,3 @@ AoC input takes a number of forms, so there are a number of simple modes in whic
 | INTSPLIT     | int[], split by a specified separator (default newline) | 1<br>2<br>3<br>4<br>5 |
 
 Specify `Solution.separator` to control how the SPLIT methods separate their input.
-
