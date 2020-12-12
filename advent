@@ -1,0 +1,48 @@
+#!/usr/bin/env python3
+
+import argparse
+import cProfile
+import sys
+from importlib import import_module
+
+from housekeeping.date_utils import current_puzzle_year
+
+
+def main(day: str, year: str, input_file: str, slow: bool, debug: bool):
+    try:
+        # class needs to have this name
+        solver = import_module(f"solutions.{year}.day_{day}.solution").Solution
+    except ModuleNotFoundError:
+        print(
+            f"solution not found for day {day} ({year}) (or there's an ImportError in your code)"
+        )
+        sys.exit(1)
+
+    solver(input_file=input_file, run_slow=slow, debug=debug).print_solutions()
+
+
+PARSER = argparse.ArgumentParser(
+    description="Run a day of Advent of Code", prog="advent"
+)
+
+PARSER.add_argument("day")
+PARSER.add_argument("--year", default=current_puzzle_year())
+PARSER.add_argument("--file", default='input.txt')
+PARSER.add_argument(
+    "--slow",
+    action="store_true",
+    help="specify that long-running solutions (or those requiring manual input) should be run",
+)
+PARSER.add_argument(
+    "--debug", action="store_true", help="prints normally-hidden debugging statements"
+)
+PARSER.add_argument(
+    "--profile", action="store_true", help="run solution through a performance profiler"
+)
+
+ARGS = PARSER.parse_args()
+
+if ARGS.profile:
+    cProfile.run("main(ARGS.day, ARGS.year, ARGS.slow, ARGS.debug)", sort="tottime")
+else:
+    main(ARGS.day, ARGS.year, ARGS.file, ARGS.slow, ARGS.debug)
