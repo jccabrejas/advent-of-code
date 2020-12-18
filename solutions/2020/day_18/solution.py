@@ -1,7 +1,6 @@
 # prompt: https://adventofcode.com/2020/day/18
 
 from ...base import BaseSolution, InputTypes
-# from typing import Tuple
 
 class Solution(BaseSolution):
     year = 2020
@@ -23,17 +22,19 @@ class Solution(BaseSolution):
                 return result, i+1
         return result, i+j
 
-    def simple(self, expression):
+    @staticmethod
+    def left_to_right(expression, f):
         if len(expression) == 3:
             return str(eval(''.join(expression)))
         else:
-            return str(eval(self.simple(expression[:-2])+''.join(expression[-2:])))
+            return str(eval(f(expression[:-2], f)+''.join(expression[-2:])))
 
-    def mixed(self, expression):
+    @staticmethod
+    def reversed_op_precedence(expression, f):
  
         r = 0
         temp = list()
-        # temp.append(expression[0])
+
         flag = False
         for i, x in enumerate(expression):
             if flag: 
@@ -52,54 +53,27 @@ class Solution(BaseSolution):
             for i in range(0,len(temp),2):
                 result *= int(temp[i])
             return str(result)
+    
+    def not_simple(self, item, f):
+        # f can be either left_to_right or reversed_op_precedence
 
-    def not_simple(self, item):
         if all([True if type(x) == str else False for x in item]):
-            return self.simple(item)
+            return f(item, f)
         else:
             result = item.copy()
             for i, x in enumerate(item):
                 if type(x) == str: continue
                 if all([True if type(y) == str else False for y in x]):
-                    result[i] = self.simple(x)
+                    result[i] = f(x,f)
                 else:
-                    result[i] = self.not_simple(x)
+                    result[i] = self.not_simple(x, f)
             
-            return self.not_simple(result)
+            return self.not_simple(result, f)
 
-    def not_mixed(self, item):
-        if all([True if type(x) == str else False for x in item]):
-            return self.mixed(item)
-        else:
-            result = item.copy()
-            for i, x in enumerate(item):
-                if type(x) == str: continue
-                if all([True if type(y) == str else False for y in x]):
-                    result[i] = self.mixed(x)
-                else:
-                    result[i] = self.not_mixed(x)
-            
-            return self.not_mixed(result)
-
-
-    def part_1(self) -> int:
-        s = '((2+4*9)*(6+9*8+6)+6)+2+4*2'
-        s = '5 * 9 * (7 * 3 * 3 + 9 * 3 + (8 + 6 * 4))'
-
-        result = 0
+    def solve(self) -> tuple((int, int)):
+        result1, result2 = 0, 0
         for line in self.input:
             parsed, _ = self.parse_to_list(line, 0)
-            result += int(self.not_simple(parsed))
-        return result
-
-    def part_2(self) -> int:
-        s = '1 + 2 * 3 + 4 * 5 + 6'
-        result = 0
-        for line in self.input:
-            parsed, _ = self.parse_to_list(line, 0)
-            result += int(self.not_mixed(parsed))
-        return result
-
-
-#   def solve(self) -> Tuple[int, int]:
-#       pass
+            result1 += int(self.not_simple(parsed, self.left_to_right))
+            result2 += int(self.not_simple(parsed, self.reversed_op_precedence))
+        return result1, result2
