@@ -55,8 +55,8 @@ class Solution(BaseSolution):
             return str(result)
     
     def not_simple(self, item, f):
-        ''' f can be either simple (expecting )
-        '''
+        # f can be either left_to_right or reversed_op_precedence
+
         if all([True if type(x) == str else False for x in item]):
             return f(item, f)
         else:
