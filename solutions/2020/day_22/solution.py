@@ -65,6 +65,7 @@ def recursive_game(player_1, player_2, depth):
     print('Player 1s deck: ', player_1)
     print('Player 2s deck: ', player_2)
 
+    seen = [[player_1.copy(), player_2.copy()]]
     while True:
         if len(player_1) == 0:
             winner = 2
@@ -91,6 +92,13 @@ def recursive_game(player_1, player_2, depth):
                 player_2.append(player_1.popleft())
         else:
             player_1, player_2 = game_round(player_1, player_2)
+        
+        for s in seen:
+            if [player_1, player_2] == s:
+                winner = 1
+                return winner
+        seen.append([player_1.copy(), player_2.copy()])
+
     return winner
 
 def play(f, player_1, player_2):
