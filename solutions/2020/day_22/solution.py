@@ -15,7 +15,7 @@ if len(sys.argv) == 2:
 else:
     inputText = read_input()
 
-def part_1():
+def parse_input(inputText):
     decks = list()
     for line in inputText:
         if 'Player' in line:
@@ -31,36 +31,86 @@ def part_1():
     player_1 = decks[0]
     player_2 = decks[1]
 
-    while True:
-        card1 = player_1.popleft()
-        card2 = player_2.popleft()
+    return player_1, player_2
 
-        if card1 > card2:
-            player_1.append(card1)
-            player_1.append(card2)
-        elif card2 > card1:
-            player_2.append(card2)
-            player_2.append(card1)
-        elif card1 == card2:
-            print('This should not happen!')
-            break
+def game_round(player_1, player_2):
+    card1 = player_1.popleft()
+    card2 = player_2.popleft()
+
+    if card1 > card2:
+        player_1.append(card1)
+        player_1.append(card2)
+    elif card2 > card1:
+        player_2.append(card2)
+        player_2.append(card1)
+
+    return player_1, player_2
+
+def game(player_1, player_2, _):
+    while True:
+        player_1, player_2 = game_round(player_1, player_2)
 
         if len(player_1) == 0 or len(player_2) == 0:
             break
 
     if len(player_1) == 0:
-        winner = player_2
+        winner = 2
     else:
-        winner = player_1
+        winner = 1
+    
+    return winner
 
+def recursive_game(player_1, player_2, depth):
+    print('Game ', depth + 1)
+    print('Player 1s deck: ', player_1)
+    print('Player 2s deck: ', player_2)
+
+    while True:
+        if len(player_1) == 0:
+            winner = 2
+            return winner
+        if len(player_2) == 0:
+            winner = 1
+            return winner
+        if (len(player_1) - 1 >= player_1[0]) and (len(player_2) - 1 >= player_2[0]):
+            temp1 = player_1.copy()
+            temp1.popleft()
+            while len(temp1) != player_1[0]:
+                temp1.pop()
+            temp2 = player_2.copy()
+            temp2.popleft()
+            while len(temp2) != player_2[0]:
+                temp2.pop()
+
+            winner = recursive_game(temp1, temp2, depth + 1)
+            if winner == 1:
+                player_1.append(player_1.popleft())
+                player_1.append(player_2.popleft())
+            elif winner == 2:
+                player_2.append(player_2.popleft())
+                player_2.append(player_1.popleft())
+        else:
+            player_1, player_2 = game_round(player_1, player_2)
+    return winner
+
+def play(f, player_1, player_2):
+
+    winner = f(player_1, player_2, 0)
+    
+    if winner == 1:
+        winner_player = player_1
+    else:
+        winner_player = player_2
+    
     result = 0
-    for i, c in enumerate(winner):
-        result += (len(winner) - i) * c
+    for i, c in enumerate(winner_player):
+        result += (len(winner_player) - i) * c
 
     return result
 
-def part_2():
-    pass
 
-print('\n=========================\nPart 1: ', part_1())
-print('\n=========================\nPart 2: ', part_2())
+player_1, player_2 = parse_input(inputText)
+print('\n=========================\nPart 1: ', play(game, player_1, player_2))
+
+player_1, player_2 = parse_input(inputText)
+print('\n=========================\nPart 2: ', play(recursive_game, player_1, player_2))
